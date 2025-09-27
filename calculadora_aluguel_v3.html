@@ -1,0 +1,228 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Calculadora Tributária - Aluguéis | Nexus Contabilidade</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <style>
+    :root{
+      --nexus-blue:#0B2B55;
+      --nexus-blue-700:#0B2B55;
+      --nexus-teal:#1BB59F;
+      --nexus-gray:#f5f7fa;
+      --nexus-dark:#1a1f29;
+      --ok:#25D366;
+      --accent:#E74C3C;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;background:var(--nexus-gray);color:#2c3440;
+      font-family:'Inter', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    }
+    header{
+      background:linear-gradient(135deg,var(--nexus-blue-700),#05172f);
+      color:#fff;padding:24px 16px;text-align:center;
+    }
+    header h1{margin:8px 0 0 0;font-size:1.4rem;font-weight:700;letter-spacing:.3px}
+    main{
+      max-width:860px;margin:24px auto;padding:0 16px 40px 16px;
+    }
+    .card{
+      background:#fff;border-radius:16px;box-shadow:0 8px 24px rgba(0,0,0,.08);
+      padding:20px;margin-top:16px;
+    }
+    .grid{
+      display:grid;gap:16px;
+    }
+    @media(min-width:860px){
+      .grid-2{grid-template-columns:1fr 1fr}
+    }
+    label{font-weight:600;margin-bottom:6px;display:block}
+    .field{display:flex;flex-direction:column}
+    input[type="number"]{
+      padding:12px;border:1px solid #d8dee9;border-radius:10px;font-size:1rem;
+      background:#fafcff;
+    }
+    .btn{
+      display:inline-flex;align-items:center;justify-content:center;gap:8px;
+      background:var(--nexus-blue);color:#fff;border:none;border-radius:12px;
+      padding:12px 16px;font-weight:700;cursor:pointer;width:100%;margin-top:12px;
+      transition:transform .05s ease, box-shadow .2s ease;
+      box-shadow:0 6px 18px rgba(11,43,85,.25);
+    }
+    .btn:hover{transform:translateY(-1px)}
+    .btn:active{transform:translateY(0)}
+    .whatsapp-btn{
+      background:var(--ok);
+      text-decoration:none;color:#fff;text-align:center;display:block;margin-top:12px;
+    }
+    .note{font-size:.88rem;color:#4f5b66;margin-top:8px}
+    .pill{
+      display:inline-block;padding:6px 10px;border-radius:999px;font-size:.8rem;
+      font-weight:700;background:#eef5ff;color:#174ea6;border:1px solid #d7e3ff;
+      letter-spacing:.2px
+    }
+    .result-title{font-weight:800;margin:0 0 6px 0;color:#0b2b55}
+    .result-line{margin:4px 0}
+    .muted{color:#65707b}
+    footer{
+      margin-top:24px;background:#07182e;color:#e7eef9;text-align:center;padding:18px;
+      border-top:1px solid rgba(255,255,255,.06)
+    }
+    footer a{color:#9ad4ff;text-decoration:none}
+    .columns{display:grid;gap:14px}
+    @media(min-width:720px){.columns{grid-template-columns:1fr 1fr}}
+    .col-card{
+      border:1px solid #edf2f7;border-radius:14px;padding:14px;background:#fbfdff
+    }
+    .col-card h3{margin:2px 0 8px 0}
+    .highlight{color:var(--accent);font-weight:800}
+    .badge{padding:4px 8px;border-radius:8px;background:#f2fbf9;color:#0b7b6b;font-weight:700;font-size:.8rem;display:inline-block}
+    .small{font-size:.9rem}
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Nexus Contabilidade — Calculadora de Aluguéis (PF)</h1>
+    <div class="pill">Comparativo: Antes x Depois da Reforma Tributária</div>
+  </header>
+
+  <main>
+    <section class="card">
+      <div class="grid grid-2">
+        <div class="field">
+          <label for="aluguel">Valor do aluguel mensal (R$)</label>
+          <input id="aluguel" type="number" placeholder="Ex.: 5000" min="0" step="100">
+        </div>
+        <div class="field">
+          <label for="imoveis">Quantidade de imóveis alugados</label>
+          <input id="imoveis" type="number" placeholder="Ex.: 3" min="1" step="1">
+        </div>
+      </div>
+      <button class="btn" id="btnCalcular">Calcular</button>
+      <a class="btn whatsapp-btn" href="https://wa.me/5583988131677" target="_blank">💬 Falar com a Nexus no WhatsApp</a>
+      <div class="note">Obs.: Simulação ilustrativa. Tabela do IRPF mensal baseada em faixas vigentes com deduções por faixa. IBS/CBS estimado de 25% sobre a receita anual quando receita anual &gt; R$ 240.000 ou nº de imóveis &gt; 3.</div>
+    </section>
+
+    <section class="card">
+      <h2 class="result-title">Resultados</h2>
+      <div class="columns">
+        <div class="col-card">
+          <h3>Antes da Reforma</h3>
+          <div class="result-line" id="antes_irpf">IRPF: —</div>
+          <div class="result-line muted small" id="antes_obs">Somente IRPF (tabela progressiva mensal)</div>
+        </div>
+        <div class="col-card">
+          <h3>Depois da Reforma</h3>
+          <div class="result-line" id="depois_irpf">IRPF: —</div>
+          <div class="result-line" id="depois_ibs">IBS/CBS: —</div>
+          <div class="result-line"><strong id="depois_total">Total: —</strong></div>
+          <div class="result-line muted small" id="depois_obs">IRPF + possível IBS/CBS conforme habitualidade/volume</div>
+        </div>
+      </div>
+
+      <div style="margin-top:18px">
+        <canvas id="chart" height="120"></canvas>
+      </div>
+
+      <div class="note" id="explicacao">
+        Informe os valores e clique em <strong>Calcular</strong> para ver o comparativo.
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div>📞 Telefone: (83) 98813-1677 &nbsp;•&nbsp; 📲 Instagram: <a href="https://instagram.com/nexuscontabilidadetech" target="_blank">@nexuscontabilidadetech</a></div>
+    <div style="margin-top:6px">© 2025 Nexus Contabilidade</div>
+  </footer>
+
+  <script>
+    const fmt = (n) => n.toLocaleString('pt-BR', {style:'currency', currency:'BRL'});
+    const pct = (n) => (n*100).toFixed(1).replace('.',',') + '%';
+
+    function irpfMensal(valorMensal){
+      if (valorMensal <= 0 || isNaN(valorMensal)) return 0;
+      const bases = [
+        {lim: 2112.00, aliq: 0.00, ded: 0.00},
+        {lim: 2826.65, aliq: 0.075, ded: 158.40},
+        {lim: 3751.05, aliq: 0.15,  ded: 370.40},
+        {lim: 4664.68, aliq: 0.225, ded: 651.73},
+        {lim: Infinity, aliq: 0.275, ded: 884.96},
+      ];
+      let faixa;
+      for(const b of bases){
+        if(valorMensal <= b.lim){ faixa = b; break; }
+      }
+      return Math.max(0, valorMensal * faixa.aliq - faixa.ded);
+    }
+
+    let chart;
+    function calcular(){
+      const aluguel = parseFloat(document.getElementById('aluguel').value);
+      const imoveis = parseInt(document.getElementById('imoveis').value);
+
+      const resAntesIR = document.getElementById('antes_irpf');
+      const resDepoisIR = document.getElementById('depois_irpf');
+      const resDepoisIBS = document.getElementById('depois_ibs');
+      const resDepoisTotal = document.getElementById('depois_total');
+      const explicacao = document.getElementById('explicacao');
+
+      if(isNaN(aluguel) || isNaN(imoveis) || aluguel <= 0 || imoveis <= 0){
+        resAntesIR.textContent = 'IRPF: —';
+        resDepoisIR.textContent = 'IRPF: —';
+        resDepoisIBS.textContent = 'IBS/CBS: —';
+        resDepoisTotal.textContent = 'Total: —';
+        explicacao.innerHTML = 'Preencha os campos acima para visualizar os resultados.';
+        if(chart){ chart.destroy(); }
+        return;
+      }
+
+      const receitaAnual = aluguel * 12;
+      const irMensal = irpfMensal(aluguel);
+      const irAnual = irMensal * 12;
+
+      const antes_total = irAnual;
+      const triggerIBS = (receitaAnual > 240000) || (imoveis > 3);
+      const ibs_cbs = triggerIBS ? receitaAnual * 0.25 : 0;
+      const depois_total_val = irAnual + ibs_cbs;
+
+      resAntesIR.textContent = `IRPF: ${fmt(irAnual)} (efetivo sobre a receita: ${pct(irAnual/receitaAnual)})`;
+      resDepoisIR.textContent = `IRPF: ${fmt(irAnual)} (mesmo IRPF)`;
+      resDepoisIBS.textContent = `IBS/CBS: ${fmt(ibs_cbs)} ${triggerIBS ? '' : '(não aplicável neste cenário)'}`;
+      resDepoisTotal.textContent = `Total: ${fmt(depois_total_val)} (efetivo: ${pct(depois_total_val/receitaAnual)})`;
+
+      explicacao.innerHTML = `
+        <strong>Resumo:</strong> Antes da reforma incide apenas IRPF pela tabela progressiva mensal.
+        Após a reforma, pode haver incidência adicional de <strong>IBS/CBS (25%)</strong> quando a receita anual excede
+        <strong>R$ 240.000</strong> ou quando há <strong>mais de 3 imóveis</strong>, elevando a carga total.
+      `;
+
+      const ctx = document.getElementById('chart').getContext('2d');
+      if(chart){ chart.destroy(); }
+      chart = new Chart(ctx, {
+        type:'bar',
+        data:{
+          labels:['Antes','Depois'],
+          datasets:[{
+            label:'Imposto (R$)',
+            data:[antes_total, depois_total_val],
+            backgroundColor:[ '#1E4E8C', '#E74C3C']
+          }]
+        },
+        options:{
+          responsive:true,
+          plugins:{legend:{display:false}},
+          scales:{y:{beginAtZero:true}}
+        }
+      });
+    }
+
+    document.getElementById('btnCalcular').addEventListener('click', calcular);
+  </script>
+</body>
+</html>
